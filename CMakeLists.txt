@@ -20,7 +20,7 @@ endif(WIN32)
 
 
 add_library( ACESclip SHARED 
-  lib/ACESclipWriter.cpp )
+  src/ACESclipWriter.cpp )
 
 set( LIBRARIES ${TINYXML2_LIBRARIES} )
 
