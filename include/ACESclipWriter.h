@@ -30,51 +30,16 @@ either expressed or implied, of the FreeBSD Project.
 #ifndef ACESclipWriter_h
 #define ACESclipWriter_h
 
-#include <string>
-#include <vector>
+#include <time.h>
 
 #include <tinyxml2.h>
 
-#include "ACESexport.h"
+#include "ACESExport.h"
+#include "ACESTransform.h"
 
 namespace ACES {
 
 static const char* kLibVersion = "0.1";
-
-
-enum TransformStatus
-{
-kPreview,
-kApplied,
-kLastStatus
-};
-
-/** 
- * Transform:  A class to store the name of a transform and its status
- * 
- */
-class ACES_EXPORT Transform
-{
-  public:
-    Transform() : name(""), status( kLastStatus ) {}
-
-    Transform( std::string n, TransformStatus t) :
-    name( n ),
-    status( t )
-    {}
-
-    ~Transform() {}
-
-    Transform( const Transform& b ) :
-    name( b.name ),
-    status( b.status )
-    {
-    }
-
-  public:
-    std::string     name;
-    TransformStatus status;
-};
 
 
 using namespace tinyxml2;

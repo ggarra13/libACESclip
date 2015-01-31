@@ -37,6 +37,8 @@ FIND_PATH( TINYXML2_INCLUDE_DIR tinyxml2.h
   "$ENV{TINYXML2_ROOT}/include"
   /usr/local/include/tinyxml2
   /usr/include/tinyxml2
+  /usr/local/include/
+  /usr/include/
   DOC   "Tinyxml2 includes"
   )
 

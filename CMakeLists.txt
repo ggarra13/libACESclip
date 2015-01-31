@@ -22,7 +22,7 @@ endif(WIN32)
 add_library( ACESclip SHARED 
   lib/ACESclipWriter.cpp )
 
-set( LIBRARIES tinyxml2 )
+set( LIBRARIES ${TINYXML2_LIBRARIES} )
 
 target_link_libraries( ACESclip ${LIBRARIES} )
 
@@ -37,5 +37,8 @@ install( TARGETS ACESclip ACESclipWriter
   RUNTIME DESTINATION bin
   LIBRARY DESTINATION lib )
 
-install( FILES include/ACESclipWriter.h
+install( FILES 
+  include/ACESclipWriter.h
+  include/ACESExport.h
+  include/ACESTransform.h
   DESTINATION ${CMAKE_INSTALL_PREFIX}/include )

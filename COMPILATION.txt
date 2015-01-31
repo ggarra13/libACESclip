@@ -2,14 +2,16 @@ For compiling, you need to have:
 
 - boost::uuid
 - tinyxml2
+- a shell environment (like bash)
 
 You can google them for getting the latest.
 
 Compilation is done with cmake.  A shell wrapper utility (mk) is provided
 to build out of source and set other settings in cmake.
 
-So, to compile, you'd do:
+So, to compile, you'd do (for windows 64):
 
+$ source win64_vars
 $ mk
 
 from a shell console.  In Windows, you can use mingw or cygwin, with the paths set up for the Microsoft compiler.
