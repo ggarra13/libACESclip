@@ -10,8 +10,14 @@ find_package( Boost REQUIRED )
 
 include_directories( 
   include
+  ${TINYXML2_INCLUDE_DIR}
   ${Boost_INCLUDE_DIR}
   )
+
+if(WIN32)
+  add_definitions( -DACES_DLL -DACES_EXPORTS )
+endif(WIN32)
+
 
 add_library( ACESclip SHARED 
   lib/ACESclipWriter.cpp )

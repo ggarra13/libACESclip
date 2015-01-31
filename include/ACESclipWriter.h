@@ -35,6 +35,8 @@ either expressed or implied, of the FreeBSD Project.
 
 #include <tinyxml2.h>
 
+#include "ACESexport.h"
+
 namespace ACES {
 
 static const char* kLibVersion = "0.1";
@@ -51,7 +53,7 @@ kLastStatus
  * Transform:  A class to store the name of a transform and its status
  * 
  */
-class Transform
+class ACES_EXPORT Transform
 {
   public:
     Transform() : name(""), status( kLastStatus ) {}
@@ -82,7 +84,7 @@ using namespace tinyxml2;
  *
  */
  
-class ACESclipWriter
+class ACES_EXPORT ACESclipWriter
 {
 
   protected:
