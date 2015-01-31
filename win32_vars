@@ -1,0 +1,4 @@
+#!/bin/bash
+
+export BOOST_ROOT="F:/code/lib/Windows_32/boost_1_51_0"
+export TINYXML2_ROOT="F:/code/lib/Windows_32"
