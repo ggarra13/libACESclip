@@ -252,9 +252,13 @@ void ACESclipWriter::ITL_end( const std::string it )
         root4->InsertEndChild( element );
     }
 
-    element = doc.NewElement( "LinkInputTransformList" );
-    element->SetText( it.c_str() );
-    root3->InsertEndChild( element );
+    if ( ! it.empty() )
+    {
+        element = doc.NewElement( "LinkInputTransformList" );
+        element->SetText( it.c_str() );
+        root3->InsertEndChild( element );
+    }
+
 }
 
 
@@ -371,10 +375,10 @@ void ACESclipWriter::PTL_end( const std::string t )
         root4->InsertEndChild( element );
     }
 
-    if ( count > 1 )
+    if ( count > 1 && !t.empty() )
     {
         element = doc.NewElement( "LinkPreviewTransformList" );
-        element->SetText( "CombinedLMT_RRT_ODT" );
+        element->SetText( t.c_str() );
         root3->InsertEndChild( element );
     }
 }

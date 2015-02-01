@@ -32,6 +32,7 @@ either expressed or implied, of the FreeBSD Project.
 
 #include <string>
 #include <vector>
+#include <ostream>
  
 #include "ACESExport.h"
 
@@ -64,6 +65,14 @@ class ACES_EXPORT Transform
     name( b.name ),
     status( b.status )
     {
+    }
+
+    friend std::ostream& operator<<( std::ostream& o, const Transform& t )
+    {
+        o << t.name << " status: ";
+        if ( t.status == kPreview ) o << "preview";
+        else o << "applied";
+        return o;
     }
 
   public:
