@@ -52,13 +52,23 @@ int main( int argc, char** argv )
     ACES::ACESclipReader c;
     c.load( argv[1] );
 
-    std::cerr << "IDT: " << c.IDT << std::endl;
-    std::cerr << "Link IDT: " << c.link_ITL << std::endl;
-    for ( unsigned i = 0; i < c.LMT.size(); ++i )
-        std::cerr << "LMT " << i+1 << ": " << c.LMT[i] << std::endl;
-    std::cerr << "RRT: " << c.RRT << std::endl;
-    std::cerr << "ODT: " << c.ODT << std::endl;
-    std::cerr << "Link LPT: " << c.link_PTL << std::endl;
+    std::cout << "Application: " << c.application << " " << c.version
+              << std::endl;
+    std::cout << "Clip Name: " << c.clip_name << std::endl
+              << "Media Id:  " << c.media_id << std::endl
+              << "Clip Date: " << c.clip_date << std::endl;
+    if ( !c.IDT.name.empty() )
+        std::cout << "IDT: " << c.IDT << std::endl;
+    if ( !c.link_ITL.empty() )
+        std::cout << "Link ITL: " << c.link_ITL << std::endl;
+    for ( size_t i = 0; i < c.LMT.size(); ++i )
+        std::cout << "LMT " << i+1 << ": " << c.LMT[i] << std::endl;
+    if ( !c.RRT.name.empty() )
+        std::cout << "RRT: " << c.RRT << std::endl;
+    if ( !c.ODT.name.empty() )
+        std::cout << "ODT: " << c.ODT << std::endl;
+    if ( !c.link_PTL.empty() )
+        std::cout << "Link LPT: " << c.link_PTL << std::endl;
 
 
 

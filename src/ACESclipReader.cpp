@@ -44,6 +44,23 @@ using namespace tinyxml2;
  * 
  * @param s kPreview or kApplied
  */
+std::string ACESclipReader::date_time( const char* i )
+{
+    if (!i) return "";
+
+    std::string s = i;
+    size_t e = s.find('T');
+    std::string r = s.substr(0, e );
+    r += " Time: ";
+    r += s.substr( e+1, s.size() );
+    return r;
+}
+
+/** 
+ * Set status of a transform
+ * 
+ * @param s kPreview or kApplied
+ */
 TransformStatus ACESclipReader::get_status( const std::string& s )
 {
     if ( s == "applied" ) return kApplied;
@@ -121,8 +138,10 @@ XMLError ACESclipReader::clip_id()
     if ( element )
     {
         const char* tmp = element->GetText();
-        if ( tmp ) clip_date = tmp;
+        if ( tmp ) clip_date = date_time( tmp );
     }
+
+    return XML_NO_ERROR;
 }
 
 XMLError ACESclipReader::config()
@@ -298,6 +317,9 @@ bool ACESclipReader::load( const char* filename )
     if ( err != XML_NO_ERROR ) return false;
 
     err = info();
+    if ( err != XML_NO_ERROR ) return false;
+
+    err = clip_id();
     if ( err != XML_NO_ERROR ) return false;
 
     err = config();

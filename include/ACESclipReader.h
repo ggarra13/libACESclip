@@ -54,6 +54,7 @@ class ACES_EXPORT ACESclipReader
     typedef std::vector< Transform > LMTransforms;
 
   protected:
+    std::string     date_time( const char* dt );
     TransformStatus get_status( const std::string& s );
 
 
