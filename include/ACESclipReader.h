@@ -92,7 +92,7 @@ class ACES_EXPORT ACESclipReader
   protected:
     XMLDocument doc;
     XMLElement* element;
-    XMLNode* root, *root2, *root3;
+    XMLNode* root, *root2, *root3, *root4;
 
   public:
     LMTransforms LMT;
