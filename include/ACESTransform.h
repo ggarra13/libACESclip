@@ -52,10 +52,16 @@ kLastStatus
 class ACES_EXPORT Transform
 {
   public:
-    Transform() : name(""), status( kLastStatus ) {}
+    Transform() : name(""), link_transform(""), status( kLastStatus ) {}
 
     Transform( std::string n, TransformStatus t) :
     name( n ),
+    status( t )
+    {}
+
+    Transform( std::string n, std::string link, TransformStatus t) :
+    name( n ),
+    link_transform( link ),
     status( t )
     {}
 
@@ -63,6 +69,7 @@ class ACES_EXPORT Transform
 
     Transform( const Transform& b ) :
     name( b.name ),
+    link_transform( b.link_transform ),
     status( b.status )
     {
     }
@@ -72,11 +79,14 @@ class ACES_EXPORT Transform
         o << t.name << " status: ";
         if ( t.status == kPreview ) o << "preview";
         else o << "applied";
+        if ( ! t.link_transform.empty() )
+            o << " link transform: " << t.link_transform;
         return o;
     }
 
   public:
     std::string     name;
+    std::string     link_transform;
     TransformStatus status;
 };
 

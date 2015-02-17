@@ -96,7 +96,7 @@ class ACES_EXPORT ACESclipReader
 
   public:
     LMTransforms LMT;
-    Transform IDT, RRT, ODT;
+    Transform IDT, RRT, RRTODT, ODT;
     std::string link_ITL;
     std::string link_PTL;
 };

@@ -175,17 +175,27 @@ XMLError ACESclipReader::config()
 
 XMLError ACESclipReader::ITL()
 {
-    root3 = root2->FirstChildElement( "InputTransformList" );
-    if ( !root3 ) return XML_ERROR_PARSING_ELEMENT;
+    root3 = root2->FirstChildElement( "aces:InputTransformList" );
+    if ( !root3 ) {
+        root3 = root2->FirstChildElement( "InputTransformList" );
+        if ( !root3 ) return XML_ERROR_PARSING_ELEMENT;
+    }
 
-    std::string name;
+
+    std::string name, link_transform;
     TransformStatus status = kPreview;
     element = root3->FirstChildElement( "aces:IDTref" );
     if ( element )
     {
         root4 = element;
-        const char* tmp = element->Attribute( "name" );
+        const char* tmp = element->Attribute( "TransformID" );
         if ( tmp ) name = tmp;
+        else
+        {
+            // For backwards compatibility
+            tmp = element->Attribute( "name" );
+            if ( tmp ) name = tmp;
+        }
 
         tmp = element->Attribute( "status" );
         if ( tmp ) status = get_status( tmp );
@@ -194,11 +204,12 @@ XMLError ACESclipReader::ITL()
         if ( element )
         {
             const char* tmp = element->GetText();
-            if ( tmp ) name = tmp;
+            if ( tmp ) link_transform = tmp;
         }
     }
 
     IDT.name = name;
+    IDT.link_transform = link_transform;
     IDT.status = status;
 
     element = root3->FirstChildElement( "LinkInputTransformList" );
@@ -213,39 +224,62 @@ XMLError ACESclipReader::ITL()
 
 XMLError ACESclipReader::PTL()
 {
-    root3 = root2->FirstChildElement( "PreviewTransformList" );
-    if ( !root3 ) return XML_ERROR_PARSING_ELEMENT;
-
+    root3 = root2->FirstChildElement( "aces:PreviewTransformList" );
+    if ( !root3 ) {
+        root3 = root2->FirstChildElement( "PreviewTransformList" );
+        if ( !root3 ) return XML_ERROR_PARSING_ELEMENT;
+    }
 
     element = root3->FirstChildElement( "aces:LMTref" );
     while( element )
     {
-        std::string name;
+        std::string name, link_transform;
         TransformStatus status = kPreview;
         if ( element )
         {
-	  root4 = element;
 
-	  const char* tmp = element->Attribute( "name" );
+	  const char* tmp = element->Attribute( "TransformID" );
 	  if ( tmp ) name = tmp;
+          else
+          {
+            // For backwards compatibility
+              tmp = element->Attribute( "name" );
+              if ( tmp ) name = tmp;
+          }
 
 	  tmp = element->Attribute( "status" );
 	  if ( tmp ) status = get_status( tmp );
 
+	  root4 = element;
 	  XMLElement* elem = root4->FirstChildElement( "LinkTransform" );
 	  if ( elem )
 	    {
 	      const char* tmp = elem->GetText();
-	      if ( tmp ) name = tmp;
+	      if ( tmp ) link_transform = tmp;
 	    }
 
-	  LMT.push_back( Transform( name, status ) );
+	  LMT.push_back( Transform( name, link_transform, status ) );
 
 	  
 	  element = element->NextSiblingElement( "aces:LMTref" );
 	}
     }
 
+    std::string name;
+    TransformStatus status = kPreview;
+    element = root3->FirstChildElement( "aces:RRTODTref" );
+    if ( element )
+    {
+        const char* tmp = element->Attribute( "TransformID" );
+        if ( tmp ) name = tmp;
+
+        tmp = element->Attribute( "status" );
+        if ( tmp ) status = get_status( tmp );
+
+        RRTODT.name = name;
+        RRTODT.status = status;
+    }
+    else
     {
         std::string name;
         TransformStatus status = kPreview;
@@ -253,33 +287,41 @@ XMLError ACESclipReader::PTL()
         if ( element )
         {
             root4 = element;
-            const char* tmp = element->Attribute( "name" );
+
+            const char* tmp = element->Attribute( "TransformID" );
             if ( tmp ) name = tmp;
+            else
+            {
+            // For backwards compatibility
+                tmp = element->Attribute( "name" );
+                if ( tmp ) name = tmp;
+            }
 
             tmp = element->Attribute( "status" );
             if ( tmp ) status = get_status( tmp );
-
-            element = root4->FirstChildElement( "LinkTransform" );
-            if ( element )
-            {
-                const char* tmp = element->GetText();
-                if ( tmp ) name = tmp;
-            }
         }
 
         RRT.name = name;
         RRT.status = status;
     }
 
+
     {
-        std::string name;
+        std::string name, link_transform;
         TransformStatus status = kPreview;
         element = root3->FirstChildElement( "aces:ODTref" );
         if ( element )
         {
             root4 = element;
-            const char* tmp = element->Attribute( "name" );
+
+            const char* tmp = element->Attribute( "TransformID" );
             if ( tmp ) name = tmp;
+            else
+            {
+                // For backwards compatibility
+                tmp = element->Attribute( "name" );
+                if ( tmp ) name = tmp;
+            }
 
             tmp = element->Attribute( "status" );
             if ( tmp ) status = get_status( tmp );
@@ -288,11 +330,12 @@ XMLError ACESclipReader::PTL()
             if ( element )
             {
                 const char* tmp = element->GetText();
-                if ( tmp ) name = tmp;
+                if ( tmp ) link_transform = tmp;
             }
         }
 
         ODT.name = name;
+        ODT.link_transform = link_transform;
         ODT.status = status;
     }
 

@@ -60,7 +60,6 @@ class ACES_EXPORT ACESclipWriter
 
   protected:
     std::string date_time( const time_t& t ) const;
-    void set_id();
     void set_status( TransformStatus s );
 
   public:
@@ -100,7 +99,7 @@ class ACES_EXPORT ACESclipWriter
      * Input Transform List beginnings.
      * 
      */
-    void ITL_start();
+    void ITL_start( TransformStatus status = kPreview );
 
     /** 
      * Add Input Device Transform (IDT) to ITL.
@@ -133,7 +132,8 @@ class ACES_EXPORT ACESclipWriter
      * @param status   status of transform (preview or applied)
      */
     void add_LMT( const std::string name, 
-                  TransformStatus status = kPreview );
+                  TransformStatus status = kPreview,
+                  const std::string link_transform = "" );
 
     /** 
      * Add a Reference Rendering Transform to PTL.  Only a single
@@ -154,7 +154,18 @@ class ACES_EXPORT ACESclipWriter
      */
 
     void add_ODT( const std::string name, 
-                  TransformStatus status = kPreview );
+                  TransformStatus status = kPreview,
+                  const std::string link_transform = "" );
+
+    /** 
+     * Add a Reference Rendering Transform and a combined ODT to PTL.
+     * Only a single call to it is accepted.
+     * 
+     * @param name    name of the transform (without .ctl extension)
+     * @param status  status of transform (preview or applied)
+     */
+    void add_RRTODT( const std::string name, 
+                     TransformStatus status = kPreview );
 
     /** 
      * Preview Transform List ending.
@@ -178,7 +189,7 @@ class ACES_EXPORT ACESclipWriter
     XMLElement* element;
     XMLNode* root, *root2, *root3;
     LMTransforms LMT;
-    Transform IDT, RRT, ODT;
+    Transform IDT, RRT, RRTODT, ODT;
     unsigned id;
 };
 

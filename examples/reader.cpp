@@ -63,10 +63,19 @@ int main( int argc, char** argv )
         std::cout << "Link ITL: " << c.link_ITL << std::endl;
     for ( size_t i = 0; i < c.LMT.size(); ++i )
         std::cout << "LMT " << i+1 << ": " << c.LMT[i] << std::endl;
-    if ( !c.RRT.name.empty() )
-        std::cout << "RRT: " << c.RRT << std::endl;
-    if ( !c.ODT.name.empty() )
-        std::cout << "ODT: " << c.ODT << std::endl;
+
+    if ( !c.RRTODT.name.empty() )
+    {
+        std::cout << "RRTODT: " << c.RRTODT << std::endl;
+    }
+    else
+    {
+        if ( !c.RRT.name.empty() )
+            std::cout << "RRT: " << c.RRT << std::endl;
+        if ( !c.ODT.name.empty() )
+            std::cout << "ODT: " << c.ODT << std::endl;
+    }
+
     if ( !c.link_PTL.empty() )
         std::cout << "Link LPT: " << c.link_PTL << std::endl;
 
