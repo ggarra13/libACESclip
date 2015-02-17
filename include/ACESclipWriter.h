@@ -39,7 +39,7 @@ either expressed or implied, of the FreeBSD Project.
 
 namespace ACES {
 
-static const char* kLibVersion = "0.1";
+static const char* kLibVersion = "0.2.1";
 
 
 using namespace tinyxml2;
@@ -81,8 +81,8 @@ class ACES_EXPORT ACESclipWriter
      * aces:clipID section
      * 
      * @param clip_name name of the clip (image name, for example)
-     * @param media_id  media id ( show,shot,take, for example )
-     * @param clip_date date of clip as return by stat
+     * @param media_id  media id ( show,shot,take, or reel for example )
+     * @param clip_date date of clip as returned by stat
      */
     void clip_id( const std::string clip_name,
                   const std::string media_id,
