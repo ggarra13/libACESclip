@@ -85,7 +85,7 @@ void ACESclipWriter::set_status( TransformStatus s )
  * Constructor
  * 
  */
-ACESclipWriter::ACESclipWriter() : id( 1 )
+ACESclipWriter::ACESclipWriter()
 {
     XMLDeclaration* decl = doc.NewDeclaration( NULL );
     doc.InsertFirstChild( decl );

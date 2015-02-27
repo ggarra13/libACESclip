@@ -71,7 +71,7 @@ class ACES_EXPORT ACESclipWriter
      * 
      * @param application application used to save xml file. 
      * @param version     version of application used.
-     * @param comment     some comment of usefulness
+     * @param comment     some useful comment
      */
     void info( const std::string application = "ACESclipLib",
                const std::string version = kLibVersion,
@@ -188,9 +188,12 @@ class ACES_EXPORT ACESclipWriter
     XMLDocument doc;
     XMLElement* element;
     XMLNode* root, *root2, *root3;
+
+    Transform cvt_to_workspace, cvt_from_workspace;
+
+
     LMTransforms LMT;
     Transform IDT, RRT, RRTODT, ODT;
-    unsigned id;
 };
 
 

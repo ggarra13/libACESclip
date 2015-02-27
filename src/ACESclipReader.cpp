@@ -29,6 +29,9 @@ either expressed or implied, of the FreeBSD Project.
 
 #include <iostream>
 
+#ifdef _WIN32
+#define strtod_l _strtod_l
+#endif
 
 #include "ACESclipReader.h"
 
@@ -38,6 +41,21 @@ namespace ACES {
 using namespace tinyxml2;
 
 
+
+/** 
+ * Set status of a transform
+ * 
+ * @param s kPreview or kApplied
+ */
+ACESclipReader::BitDepth ACESclipReader::get_bit_depth( const std::string& d )
+{
+    if ( d == "10i" ) return k10i;
+    if ( d == "12i" ) return k12i;
+    if ( d == "16i" ) return k16i;
+    if ( d == "16f" ) return k16f;
+    if ( d == "32f" ) return k32f;
+    return kLastBitDepth;
+}
 
 /** 
  * Set status of a transform
@@ -67,14 +85,64 @@ TransformStatus ACESclipReader::get_status( const std::string& s )
     else return kPreview;
 }
 
+
+/** 
+ * Parse a vector of 3 float numbers
+ * 
+ * @param s    3 float numbers as a string separated by spaces
+ * @param out  the 3 float numbers
+ */
+void ACESclipReader::parse_V3( const char* v3, float out[3]  )
+{
+    char* s = strdup( v3 );
+    char* t = s;
+    int idx = 0;
+    char* e = s;
+    for ( ; *e != 0 || idx == 3; ++e )
+    {
+        if ( *e == ' ') {
+            *e = 0;
+            out[idx++] = (float) strtod_l( s, &e, loc );
+            ++e;
+            s = e;
+        }
+    }
+    free( t );
+}
+
 /** 
  * Constructor
  * 
  */
 ACESclipReader::ACESclipReader()
 {
+#ifdef _WIN32
+    // The following line should in theory work, but it doesn't
+    // _loc = _create_locale( LC_ALL, "en-US" );
+    // We instead use a full name
+    loc = _create_locale( LC_ALL, "English" );
+#else
+    locale_t empty;
+    memset( &empty, 0, sizeof(locale_t) );
+    loc = newlocale( LC_ALL, "en_US.UTF-8", empty );
+#endif
+
 }
 
+ACESclipReader::~ACESclipReader()
+{
+#ifdef _WIN32
+    _free_locale( loc );
+#else
+    freelocale( loc );
+#endif
+}
+
+/** 
+ * Standard header.
+ * 
+ * @return XML_NO_ERROR on success, XML_ERROR_FILE_READ_ERROR on failure
+ */
 XMLError ACESclipReader::header()
 {
     root = doc.FirstChildElement("aces:ACESmetadata");
@@ -173,6 +241,101 @@ XMLError ACESclipReader::config()
     return XML_NO_ERROR;
 }
 
+XMLError ACESclipReader::GradeRef()
+{
+    element = root3->FirstChildElement( "aces:GradeRef" );
+    if ( !element ) return XML_NO_ERROR;
+
+    root4 = element;
+    element = root4->FirstChildElement( "Convert_to_WorkSpace" );
+    if ( !element ) return XML_ERROR_FILE_READ_ERROR;
+
+    const char* tmp = element->Attribute( "TransformID" );
+    if ( ! tmp ) return XML_ERROR_FILE_READ_ERROR;
+
+    convert_to = tmp;
+
+    XMLNode* root5 = root4->NextSiblingElement( "ColorDecisionList" );
+    if ( !root5 ) return XML_ERROR_FILE_READ_ERROR;
+
+    element = root5->FirstChildElement( "ASC CDL" );
+    if ( !element ) return XML_ERROR_FILE_READ_ERROR;
+
+    tmp = element->Attribute( "inBitDepth" );
+    if ( tmp )
+    {
+        std::string depth = tmp;
+        in_bit_depth = get_bit_depth( depth );
+    }
+    tmp = element->Attribute( "outBitDepth" );
+    if ( tmp )
+    {
+        std::string depth = tmp;
+        out_bit_depth = get_bit_depth( depth );
+    }
+
+    XMLNode* root6 = root5->FirstChildElement( "SOPNode" );
+    if ( root6 )
+    {
+        float out[3];
+        element = root6->FirstChildElement( "Slope" );
+        if ( element )
+        {
+            const char* tmp = element->GetText();
+            if ( tmp )
+            {
+                parse_V3( tmp, out );
+                sops.slope( out );
+            }
+        }
+        element = root6->NextSiblingElement( "Offset" );
+        if ( element )
+        {
+            const char* tmp = element->GetText();
+            if ( tmp )
+            {
+                parse_V3( tmp, out );
+                sops.offset( out );
+            }
+        }
+        element = root6->NextSiblingElement( "Power" );
+        if ( element )
+        {
+            const char* tmp = element->GetText();
+            if ( tmp )
+            {
+                parse_V3( tmp, out );
+                sops.power( out );
+            }
+        }
+    }
+
+    root6 = root5->FirstChildElement( "SatNode" );
+    if ( root5 )
+    {
+        element = root6->FirstChildElement( "Saturation" );
+        if ( element )
+        {
+            const char* s = element->GetText();
+            if ( s )
+            {
+                char* e = (char*) s + strlen(s) - 1;
+                sops.saturation( (float) strtod_l( s, &e, loc ) );
+            }
+        }
+    }
+
+    element = root4->FirstChildElement( "Convert_from_WorkSpace" );
+    if ( !element ) return XML_ERROR_FILE_READ_ERROR;
+
+    tmp = element->Attribute( "TransformID" );
+    if ( ! tmp ) return XML_ERROR_FILE_READ_ERROR;
+
+    convert_from = tmp;
+
+    return XML_NO_ERROR;
+}
+
 XMLError ACESclipReader::ITL()
 {
     root3 = root2->FirstChildElement( "aces:InputTransformList" );
@@ -212,6 +375,11 @@ XMLError ACESclipReader::ITL()
     IDT.link_transform = link_transform;
     IDT.status = status;
 
+    XMLError err = GradeRef();
+    if ( err != XML_NO_ERROR )
+        return err;
+
+
     element = root3->FirstChildElement( "LinkInputTransformList" );
     if ( element )
     {
@@ -242,7 +410,7 @@ XMLError ACESclipReader::PTL()
 	  if ( tmp ) name = tmp;
           else
           {
-            // For backwards compatibility
+              // For backwards compatibility
               tmp = element->Attribute( "name" );
               if ( tmp ) name = tmp;
           }
@@ -292,7 +460,7 @@ XMLError ACESclipReader::PTL()
             if ( tmp ) name = tmp;
             else
             {
-            // For backwards compatibility
+                // For backwards compatibility
                 tmp = element->Attribute( "name" );
                 if ( tmp ) name = tmp;
             }

@@ -30,8 +30,18 @@ either expressed or implied, of the FreeBSD Project.
 #ifndef ACESclipReader_h
 #define ACESclipReader_h
 
+#include <locale.h>
+
+#ifdef _WIN32
+#include <stdlib.h>
+#define locale_t _locale_t
+#else
+#include <xlocale.h>
+#endif
+
 #include <tinyxml2.h>
 
+#include "ACES_ASC_CDL.h"
 #include "ACESExport.h"
 #include "ACESTransform.h"
 
@@ -46,6 +56,16 @@ using namespace tinyxml2;
  
 class ACES_EXPORT ACESclipReader
 {
+  public:
+   enum BitDepth
+   {
+   k10i,
+   k12i,
+   k16i,
+   k16f,
+   k32f,
+   kLastBitDepth
+   };
 
   protected:
 /**
@@ -56,15 +76,17 @@ class ACES_EXPORT ACESclipReader
   protected:
     std::string     date_time( const char* dt );
     TransformStatus get_status( const std::string& s );
-
+    BitDepth        get_bit_depth( const std::string& s );
+    void parse_V3( const char* s, float out[3] );
 
   public:
     ACESclipReader();
-    ~ACESclipReader() {};
+    ~ACESclipReader();
 
     XMLError header();
     XMLError info();
     XMLError clip_id();
+    XMLError GradeRef();
     XMLError config();
     XMLError ITL();
     XMLError PTL();
@@ -79,26 +101,35 @@ class ACES_EXPORT ACESclipReader
     bool load( const char* filename );
 
   public:
+    // aces:Info
     std::string application;
     std::string version;
     std::string comment;
 
+    // aces:clipID
     std::string clip_name;
     std::string media_id;
     std::string clip_date;
 
+    // aces:Config
     std::string timestamp;
+
+    // aces::GradeRef
+    std::string convert_to, convert_from;
+    BitDepth in_bit_depth, out_bit_depth;
+    ASC_CDL  sops;
+
+    Transform IDT;
+    LMTransforms LMT;
+    Transform RRTODT, RRT, ODT;
+    std::string link_ITL;
+    std::string link_PTL;
 
   protected:
     XMLDocument doc;
     XMLElement* element;
     XMLNode* root, *root2, *root3, *root4;
-
-  public:
-    LMTransforms LMT;
-    Transform IDT, RRT, RRTODT, ODT;
-    std::string link_ITL;
-    std::string link_PTL;
+    locale_t loc;
 };
 
 
