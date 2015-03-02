@@ -57,6 +57,29 @@ int main( int argc, char** argv )
     std::cout << "Clip Name: " << c.clip_name << std::endl
               << "Media Id:  " << c.media_id << std::endl
               << "Clip Date: " << c.clip_date << std::endl;
+
+    if ( !c.convert_to.empty() )
+    {
+        std::cout << "GradeRef" << std::endl;
+        std::cout << "Convert_to_Workspace " << c.convert_to << std::endl;
+
+        std::cout << "ASC_CDL:" << std::endl;
+        std::cout << "\tSOPNode" << std::endl;
+        std::cout << "\t\tSlope " << c.sops.slope(0) 
+                  << " " << c.sops.slope(1)
+                  << " " << c.sops.slope(2) << std::endl;
+        std::cout << "\t\tOffset " << c.sops.offset(0) 
+                  << " " << c.sops.offset(1)
+                  << " " << c.sops.offset(2) << std::endl;
+        std::cout << "\t\tPower " << c.sops.power(0) 
+                  << " " << c.sops.power(1)
+                  << " " << c.sops.power(2) << std::endl;
+
+        std::cout << "\tSatNode " << c.sops.saturation() << std::endl;
+
+        std::cout << "Convert_from_Workspace " << c.convert_from << std::endl;
+    }
+
     if ( !c.IDT.name.empty() )
         std::cout << "IDT: " << c.IDT << std::endl;
     if ( !c.link_ITL.empty() )
