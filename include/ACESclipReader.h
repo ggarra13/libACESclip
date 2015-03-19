@@ -30,6 +30,8 @@ either expressed or implied, of the FreeBSD Project.
 #ifndef ACESclipReader_h
 #define ACESclipReader_h
 
+#include <tinyxml2.h>
+
 #include <locale.h>
 
 #ifdef _WIN32
@@ -39,11 +41,11 @@ either expressed or implied, of the FreeBSD Project.
 #include <xlocale.h>
 #endif
 
-#include <tinyxml2.h>
 
 #include "ACES_ASC_CDL.h"
-#include "ACESExport.h"
 #include "ACESTransform.h"
+#include "ACESExport.h"
+
 
 namespace ACES {
  
@@ -57,6 +59,22 @@ using namespace tinyxml2;
 class ACES_EXPORT ACESclipReader
 {
   public:
+    enum ACESError
+    {
+    kAllOK = 0,
+    kFileError,
+    kNotAnAcesFile,
+    kErrorParsingElement,
+    kErrorVersion,
+    kNoAcesInfo,
+    kNoClipID,
+    kNoConfig,
+    kMissingSpaceConversion,
+    kNoInputTransformList,
+    kNoPreviewTransformList,
+    kLastError
+    };
+
    enum BitDepth
    {
    k10i,
@@ -67,11 +85,11 @@ class ACES_EXPORT ACESclipReader
    kLastBitDepth
    };
 
-  protected:
 /**
  * Look Modification Transforms is a list
  */
     typedef std::vector< Transform > LMTransforms;
+    typedef std::vector< std::string > GradeRefs;
 
   protected:
     std::string     date_time( const char* dt );
@@ -83,22 +101,24 @@ class ACES_EXPORT ACESclipReader
     ACESclipReader();
     ~ACESclipReader();
 
-    XMLError header();
-    XMLError info();
-    XMLError clip_id();
-    XMLError GradeRef();
-    XMLError config();
-    XMLError ITL();
-    XMLError PTL();
+    const char* error_name( ACESError err ) const;
+
+    ACESError header();
+    ACESError info();
+    ACESError clip_id();
+    ACESError GradeRef();
+    ACESError config();
+    ACESError ITL();
+    ACESError PTL();
 
     /** 
      * Load the XML file
      * 
      * @param filename  file to load xml from.  Add prefix and .xml suffix.
      * 
-     * @return true if success, false if not.
+     * @return ACESError.
      */
-    bool load( const char* filename );
+    ACESError load( const char* filename );
 
   public:
     // aces:Info
@@ -115,8 +135,10 @@ class ACES_EXPORT ACESclipReader
     std::string timestamp;
 
     // aces::GradeRef
+    TransformStatus graderef_status;
     std::string convert_to, convert_from;
     BitDepth in_bit_depth, out_bit_depth;
+    GradeRefs grade_refs;
     ASC_CDL  sops;
 
     Transform IDT;
@@ -126,7 +148,7 @@ class ACES_EXPORT ACESclipReader
     std::string link_PTL;
 
   protected:
-    XMLDocument doc;
+    tinyxml2::XMLDocument doc;
     XMLElement* element;
     XMLNode* root, *root2, *root3, *root4;
     locale_t loc;
